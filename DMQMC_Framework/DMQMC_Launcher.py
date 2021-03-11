@@ -62,9 +62,9 @@ N = 8
 J1 = 1
 J2 = 1
 # Finite difference beta step
-dbeta = 1/8
+dbeta = 1/16
 # Initial population on each of the diagonal entry
-init_pop = 30
+init_pop = 10
 
 
 # ***Select the Hamiltonian here***
@@ -76,6 +76,7 @@ analyser = Analysis.Finite_Beta_Analyser(H, N, dbeta, init_pop)
 
 analyser.load_all_data()
 analyser.population_analysis()
+analyser.population_analysis2()
 analyser.energy_analysis()
 analyser.run_diagnostics()
 
@@ -89,22 +90,22 @@ print('Total time taken', (endTime-startTime)/60, 'minutes')
 
 # ***Input parameters here***
 # Number of spins
-N = 10
+N = 8
 # Coupling strength
 J1 = 1
 J2 = 1
 # Initial population on each of the diagonal entry
 init_pop = 10
 # Number of loops
-no_loops = 1
+no_loops = 10
 # Final target beta
-final_beta = 6
+final_beta = 3
 # final_beta/resolution = integer * dbeta
 # resolution = final_beta/(integer*dbeta)
 # Finite difference beta step
-dbeta = 1/8
+dbeta = 1/16
 # Number of measurements to be made between beta = 0 and beta = final_beta
-resolution = final_beta/(2*dbeta)
+resolution = int(final_beta/(1*dbeta))
 
 # ***Select the Hamiltonian here***
 H = H_generator.Frustrated_Ladder(N, J1, J2)

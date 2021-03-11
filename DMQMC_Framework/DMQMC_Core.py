@@ -457,8 +457,8 @@ class DMQMC_Core:
         Betasteps is 1/dbeta, i.e. the number of betasteps in the unit
         '''
         
-        if no_loops != 1 and no_loops%4 != 0:
-            raise ValueError("Number of loops must be either 1 or a multiple of 4!")
+        #if no_loops != 1 and no_loops%4 != 0:
+        #    raise ValueError("Number of loops must be either 1 or a multiple of 4!")
         
         
         target_beta_range = np.linspace(0, final_beta, resolution+1)

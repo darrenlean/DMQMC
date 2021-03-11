@@ -188,7 +188,18 @@ class Finite_Beta_Analyser:
         Performing averaging of population, reconstructing the growth of 
         population and the associated error analysis
         '''
-
+        self.__all_log_recon_pop = []
+        #Loop through the various loops
+        for loop_index in range(self.__total_no_loops):
+            temp = []
+            #Loop through the various target betas
+            for i in range(len(self.__beta)):
+                temp.append(-self.__shifts[loop_index][i]*self.__beta[i] +
+                            np.log(self.__no_psips[loop_index][i]))
+            
+            self.__all_log_recon_pop.append(temp)    
+        
+        
         #Loop through the various target betas
         for i in range(len(self.__beta)):
             p_array = []
@@ -213,6 +224,23 @@ class Finite_Beta_Analyser:
             self.__psips_growth.append(y)
             self.__psips_growth_errors.append(y*np.sqrt(frac1**2 + frac2**2))
             
+    def population_analysis2(self):
+        #Loop through the various target betas
+        self.__gradients = []
+        self.__gradient_err = []
+        for i in range(len(self.__beta)-1):
+            gradient_array = []
+            for loop_index in range(self.__total_no_loops):
+                #Population growth reconstruction and error
+                y1 = self.__no_psips[loop_index][i]*\
+                np.exp(-np.mean(self.__shifts[loop_index][i])*self.__beta[i])
+                y2 = self.__no_psips[loop_index][i+1]*\
+                np.exp(-np.mean(self.__shifts[loop_index][i+1])*self.__beta[i+1])
+                y1 = np.log(y1)
+                y2 = np.log(y2)
+                gradient_array.append((y2 - y1)/(self.__beta[i+1]-self.__beta[i]))
+            self.__gradients.append(np.mean(gradient_array))
+            self.__gradient_err.append(np.std(gradient_array))
          
     def growth_fitting(self):
         '''
@@ -220,29 +248,30 @@ class Finite_Beta_Analyser:
         returns the fit parameters in log space 
         (log population = fit[0]*log beta + fit[1])
         '''
-        log_psips_growth = np.log(self.__psips_growth)
-        log_psips_growth_err = []
-        for i  in range(len(self.__no_psips_errors)):
-            log_psips_growth_err.append(self.__psips_growth_errors[i]*np.exp(1)/\
-                        (self.__psips_growth[i]*np.log(self.__psips_growth[i])))
-        #Guessing the gradient and intercept
-        guess = [(log_psips_growth[-1]-log_psips_growth[0])/self.__beta[-1],\
-                 log_psips_growth[0]]
-        #Curve fitting for the log of the reconstructed population
-        #curve_fit(self.linear, self.__beta, log_psips_growth, p0=guess, \
-        #          sigma = log_psips_growth_err)
-        fit_parameters, fit_error_cov = \
-        curve_fit(self.linear, self.__beta, log_psips_growth, p0=guess)
-        print('Fitted growth rate: ', fit_parameters[0], ' +/- ', \
-              np.sqrt(np.diag(np.real(fit_error_cov)))[0])
+        fitted_growth_rates = []
+        fitted_growth_init = []
+        #Loop through the various loops
+        for loop_index in range(self.__total_no_loops):
+            this_log_recon_pop = self.__all_log_recon_pop[loop_index]
+            #Guessing the gradient and intercept
+            guess = [(this_log_recon_pop[-1]-this_log_recon_pop[0])/self.__beta[-1],\
+                     this_log_recon_pop[0]]
+            
+            fit_parameters, fit_error_cov = \
+            curve_fit(self.linear, self.__beta, this_log_recon_pop, p0=guess)
+            print('Fitted growth rate: ', fit_parameters[0], '+/-', \
+                  np.sqrt(np.diag(np.real(fit_error_cov)))[0])
+            
+            fitted_growth_rates.append(fit_parameters[0])
+            fitted_growth_init.append(fit_parameters[1])
+        self.__growth_rate = np.mean(fitted_growth_rates)
+        self.__growth_rate_error = np.std(fitted_growth_rates)
+        #self.__growth_rate_error = max(fitted_growth_rates) - min(fitted_growth_rates)
+        self.__growth_init = np.mean(fitted_growth_init)
+        self.__growth_init_error = np.std(fitted_growth_init)
         
-        self.__growth_rate = fit_parameters[0]
-        self.__growth_rate_error = np.sqrt(np.diag(np.real(fit_error_cov)))[0]
-        
-        self.__growth_init = fit_parameters[1]
-        self.__growth_init_error = np.sqrt(np.diag(np.real(fit_error_cov)))[1]
-        
-        return fit_parameters, np.sqrt(np.diag(np.real(fit_error_cov)))
+        print('Average:', self.__growth_rate, '+/-', self.__growth_rate_error)
+        #return fit_parameters, np.sqrt(np.diag(np.real(fit_error_cov)))
         
             
     def linear(self, x, m, c):
@@ -381,8 +410,14 @@ class Finite_Beta_Analyser:
         plt.savefig(fname = self.__result_directory + "Energy_profile" + ".jpeg", format = 'jpeg')
         plt.show()
         
-        #plt.figure(4)
-        #plt.plot(self.__beta, self.__energy_errors)
+        plt.figure(4)
+        plt.errorbar(self.__beta[1:], self.__gradients, \
+                     xerr = (self.__beta[1]-self.__beta[0])*np.ones(len(self.__beta)-1),
+                     yerr = self.__gradient_err, fmt = 'x')
+        plt.title(self.__plot_title)
+        plt.xlabel(r'$\beta$ [J]')
+        plt.ylabel('Finite difference gradient of log of reconstructed growth')
+        plt.grid()
         
 class Growth_Analyser:
     '''
@@ -526,3 +561,50 @@ class Growth_Analyser:
         plt.legend()
         plt.grid()
         plt.savefig(fname = self.__result_directory + "Growth_rate" + ".jpeg", format = 'jpeg')
+        
+class Growth_Analyser2:
+    '''
+    Diagnostic tool for a DMQMC growth rate across different initial population
+    It requires Finite_Beta_Analyser
+    '''
+    def __init__(self, Hamiltonian, N, dbeta, init_pop):
+        #The Hamiltonian object
+        self.__H = Hamiltonian
+        #The number of spins
+        self.__N = N
+        #Finite difference step
+        self.__dbeta = dbeta
+        self.__init_pop = init_pop
+        #Naming convention follows the structure of the database:
+        #Type of Hamiltonian; Number of spins; dbeta; Number of initial psips
+        self.__folder_name = str(self.__H.__class__.__name__)+'/'+\
+                'N='+str(N)+'/dbeta='+str(dbeta)+'/initpop='+str(init_pop)
+        #Directory to navigate through the database
+        self.__data_directory = 'Database/' + self.__folder_name
+        self.__get_no_of_loops()
+        
+        
+        #Obtaining the Tmax and Vmax of the given hamiltonian
+        #self.__Tmax, self.__Vmax = sign_solver.TmaxVmax(self.__H.Hamiltonian_matrix())
+        
+    def directory_check(self, directory):
+        '''
+        This helper function creates the folder of the given directory if it
+        is not found
+        '''
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        
+    def get_no_of_loops(self):
+        '''
+        This helper function retrieves the number of numerical loops
+        '''
+        fileIndex = []
+        for root, dirs, files in os.walk(self.__data_directory):
+            for filename in dirs:
+                if filename != '.DS_Store':
+                    fileIndex.append(int(os.path.splitext(filename)[0]))
+        self.__no_of_loops = max(fileIndex)
+        return max(fileIndex)
+    
+    
