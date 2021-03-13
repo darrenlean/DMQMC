@@ -405,12 +405,25 @@ class Finite_Beta_Analyser:
         plt.xlabel(r'$\beta$ [J]')
         plt.ylabel('Energy estimator [J]')
         ED_energy.show_result()
+
+        analytic_energies = ED_energy.compute_all_energies(self.__beta)
         plt.grid()
 
         plt.savefig(fname = self.__result_directory + "Energy_profile" + ".jpeg", format = 'jpeg')
         plt.show()
         
-        plt.figure(4)
+        plt.figure()
+        plt.errorbar(self.__beta, np.array(self.__energy_estimators)-analytic_energies, \
+                     xerr = (self.__dbeta/2)*np.ones(len(self.__beta)), \
+                     yerr = self.__energy_errors, fmt = 'x', label='DMQMC')
+        plt.title(self.__plot_title)
+        plt.xlabel(r'$\beta$ [J]')
+        plt.ylabel('Energy residual [J]')
+        plt.grid()
+        plt.savefig(fname = self.__result_directory + "Energy_residual" + ".jpeg", format = 'jpeg')
+        plt.show()
+        
+        plt.figure()
         plt.errorbar(self.__beta[1:], self.__gradients, \
                      xerr = (self.__beta[1]-self.__beta[0])*np.ones(len(self.__beta)-1),
                      yerr = self.__gradient_err, fmt = 'x')

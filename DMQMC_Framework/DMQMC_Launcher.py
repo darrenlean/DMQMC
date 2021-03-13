@@ -57,14 +57,14 @@ print(sign_solver.TmaxVmax(H_matrix))
 # Running a diagnostic tools
 # ***Input parameters here***
 # Number of spins
-N = 8
+N = 6
 # Coupling strength
 J1 = 1
 J2 = 1
 # Finite difference beta step
-dbeta = 1/16
+dbeta = 1/32
 # Initial population on each of the diagonal entry
-init_pop = 10
+init_pop = 30
 
 
 # ***Select the Hamiltonian here***

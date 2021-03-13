@@ -40,14 +40,14 @@ class ED:
         #Storage for the results
         
         #Various betas between 0 and final beta
-        self.__result_betas = []
+        self.__result_betas = np.linspace(0, beta, resolution)
         #analytic energies of corresponding betas
         self.__result_energies = []
         
         #Run exact diagonalisation of the Hamiltonian
         self.diagonalisation()
         #Compute the energies at various betas
-        self.compute_all_energies()
+        self.compute_all_energies(self.__result_betas)
     
     def diagonalisation(self):
         '''
@@ -86,21 +86,22 @@ class ED:
         #returns the result energy
         return E
     
-    def compute_all_energies(self):
+    def compute_all_energies(self, betas):
         '''
         Computes and stores the energies for various betas
         '''
         
         #Clear memory for new results
-        self.__result_betas = []
         self.__result_energies = []
         
         #Running compute_energy for the different betas
-        for i in range(self.__resolution):
-            target_beta = (i+1)*self.__beta/self.__resolution
+        for i in range(len(betas)):
+            #target_beta = (i+1)*self.__beta/self.__resolution
             #print('Computing beta = ', target_beta)
-            self.__result_betas.append(target_beta)
+            target_beta = betas[i]
             self.__result_energies.append(self.compute_energy(target_beta))
+
+        return np.array(self.__result_energies)
             
     def get_result(self):
         '''
