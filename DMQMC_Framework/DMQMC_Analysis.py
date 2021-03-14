@@ -271,7 +271,10 @@ class Finite_Beta_Analyser:
         self.__growth_init_error = np.std(fitted_growth_init)
         
         print('Average:', self.__growth_rate, '+/-', self.__growth_rate_error)
-        #return fit_parameters, np.sqrt(np.diag(np.real(fit_error_cov)))
+        if self.__total_no_loops == 1:
+            return fit_parameters, np.sqrt(np.diag(np.real(fit_error_cov)))
+        else:
+            return [self.__growth_rate, self.__growth_init], [self.__growth_rate_error, self.__growth_init_error]
         
             
     def linear(self, x, m, c):
@@ -561,63 +564,21 @@ class Growth_Analyser:
         plt.figure()
         plt.errorbar(self.__all_init_pop, self.__rates, \
                      yerr = self.__rates_error, fmt = 'x', label='DMQMC')
-        plt.plot(self.__all_init_pop[:self.__crit_index], \
-                 self.linear(np.array(self.__all_init_pop[:self.__crit_index]),\
-                  self.__rate_gradient, self.__rate_init), label='Fit')
+        #plt.plot(self.__all_init_pop[:self.__crit_index], \
+        #         self.linear(np.array(self.__all_init_pop[:self.__crit_index]),\
+        #          self.__rate_gradient, self.__rate_init), label='Fit')
         plt.plot([self.__all_init_pop[0], self.__all_init_pop[-1]], \
                  [self.__Tmax, self.__Tmax], 'g--', label=r'$T_{max}$')
         plt.plot([self.__all_init_pop[0], self.__all_init_pop[-1]], \
                  [self.__Vmax, self.__Vmax], 'r--', label=r'$V_{max}$')
-        plt.xlabel("Initial population on each of diagonal entry")
-        plt.ylabel("Growth rate (fitted exponentials)")
+        plt.xlabel(r"$n_0$")
+        plt.ylabel("G")
+        #plt.xlabel("Initial population on each of diagonal entry")
+        #plt.ylabel("Growth rate (fitted exponentials)")
         plt.title(self.__plot_title)
         plt.legend()
         plt.grid()
         plt.savefig(fname = self.__result_directory + "Growth_rate" + ".jpeg", format = 'jpeg')
         
-class Growth_Analyser2:
-    '''
-    Diagnostic tool for a DMQMC growth rate across different initial population
-    It requires Finite_Beta_Analyser
-    '''
-    def __init__(self, Hamiltonian, N, dbeta, init_pop):
-        #The Hamiltonian object
-        self.__H = Hamiltonian
-        #The number of spins
-        self.__N = N
-        #Finite difference step
-        self.__dbeta = dbeta
-        self.__init_pop = init_pop
-        #Naming convention follows the structure of the database:
-        #Type of Hamiltonian; Number of spins; dbeta; Number of initial psips
-        self.__folder_name = str(self.__H.__class__.__name__)+'/'+\
-                'N='+str(N)+'/dbeta='+str(dbeta)+'/initpop='+str(init_pop)
-        #Directory to navigate through the database
-        self.__data_directory = 'Database/' + self.__folder_name
-        self.__get_no_of_loops()
-        
-        
-        #Obtaining the Tmax and Vmax of the given hamiltonian
-        #self.__Tmax, self.__Vmax = sign_solver.TmaxVmax(self.__H.Hamiltonian_matrix())
-        
-    def directory_check(self, directory):
-        '''
-        This helper function creates the folder of the given directory if it
-        is not found
-        '''
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        
-    def get_no_of_loops(self):
-        '''
-        This helper function retrieves the number of numerical loops
-        '''
-        fileIndex = []
-        for root, dirs, files in os.walk(self.__data_directory):
-            for filename in dirs:
-                if filename != '.DS_Store':
-                    fileIndex.append(int(os.path.splitext(filename)[0]))
-        self.__no_of_loops = max(fileIndex)
-        return max(fileIndex)
     
     

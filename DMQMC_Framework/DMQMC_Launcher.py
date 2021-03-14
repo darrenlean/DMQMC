@@ -62,9 +62,9 @@ N = 6
 J1 = 1
 J2 = 1
 # Finite difference beta step
-dbeta = 1/32
+dbeta = 1/50
 # Initial population on each of the diagonal entry
-init_pop = 30
+init_pop = 7
 
 
 # ***Select the Hamiltonian here***
@@ -90,20 +90,20 @@ print('Total time taken', (endTime-startTime)/60, 'minutes')
 
 # ***Input parameters here***
 # Number of spins
-N = 8
+N = 6
 # Coupling strength
 J1 = 1
 J2 = 1
 # Initial population on each of the diagonal entry
-init_pop = 10
+init_pop = 17
 # Number of loops
-no_loops = 10
+no_loops = 1
 # Final target beta
-final_beta = 3
+final_beta = 2
 # final_beta/resolution = integer * dbeta
 # resolution = final_beta/(integer*dbeta)
 # Finite difference beta step
-dbeta = 1/16
+dbeta = 1/50
 # Number of measurements to be made between beta = 0 and beta = final_beta
 resolution = int(final_beta/(1*dbeta))
 
@@ -129,12 +129,12 @@ print('Total time taken', (endTime-startTime)/60, 'minutes')
 # Running a diagnostic tools
 # ***Input parameters here***
 # Number of spins
-N = 8
+N = 6
 # Coupling strength
 J1 = 1
 J2 = 1
 # Finite difference beta step
-dbeta = 1/8
+dbeta = 1/50
 
 
 # ***Select the Hamiltonian here***
@@ -152,15 +152,17 @@ analyser.run_diagnostics()
 # Running a diagnostic tools
 # ***Input parameters here***
 # Number of spins
-N = 8
+N = 10
 # Coupling strength
 J1 = 1
 J2 = 1
 # Finite difference beta step
-dbeta = 1/8
+dbeta = 1/50
+
+D_rho = 160000/2**N
 
 # ***Select the Hamiltonian here***
 H = H_generator.Frustrated_Ladder(N, J1, J2)
 
-analyser = FEA.Fractional_Error(N, H)
+analyser = FEA.Fractional_Error(N, H, D_rho)
 analyser.fGraph(100, dbeta)

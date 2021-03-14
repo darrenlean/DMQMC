@@ -21,7 +21,7 @@ plt.rcParams.update(params)
 
 class Fractional_Error:
     
-    def __init__(self, N, H):
+    def __init__(self, N, H, D_rho):
         #Number of spins
         self.__N = N
         #The Hamiltonian object
@@ -31,7 +31,8 @@ class Fractional_Error:
         self.__unique_entries, self.__counts = np.unique(self.__H_matrix, \
                                                          return_counts=True)
         self.__zero_entries_count = self.__counts[np.where(np.array(self.__unique_entries)==0)[0][0]]
-        self.__D = len(self.__H_matrix)-self.__zero_entries_count/len(self.__H_matrix)
+        print('Hamiltonian D:', len(self.__H_matrix)-self.__zero_entries_count/len(self.__H_matrix))
+        self.__D = min(D_rho, len(self.__H_matrix)-self.__zero_entries_count/len(self.__H_matrix))
         
         #Getting the smallest non-zero hamiltonian entry
         self.__H_min = max(abs(self.__unique_entries))
@@ -126,11 +127,12 @@ class Fractional_Error:
             all_f1max.append(self.f1max(i, dbeta))
             all_ftmax.append(self.ftmax(i, dbeta))
         
-        plt.xlabel('Initial population on diagonal entry')
+        #plt.xlabel('Initial population on diagonal entry')
+        plt.xlabel(r'$R$')
         plt.ylabel(r'$f$')
         plt.plot(all_R, all_f1max, label = 'Theoretical $f^{(1)}_{max}$')
         plt.plot(all_R, all_ftmax, label = r'Theoretical $f^{(t)}_{max}$')
-        plt.plot([all_R[0], all_R[-1]], [1, 1], label = '1')
+        #plt.plot([all_R[0], all_R[-1]], [1, 1], label = '1')
         plt.legend()
         plt.grid()
-        plt.title(self.__plot_title)
+        #plt.title(self.__plot_title)
