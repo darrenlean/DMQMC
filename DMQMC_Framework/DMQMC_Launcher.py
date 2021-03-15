@@ -95,15 +95,15 @@ N = 6
 J1 = 1
 J2 = 1
 # Initial population on each of the diagonal entry
-init_pop = 17
+init_pop = 9
 # Number of loops
 no_loops = 1
 # Final target beta
-final_beta = 2
+final_beta = 6
 # final_beta/resolution = integer * dbeta
 # resolution = final_beta/(integer*dbeta)
 # Finite difference beta step
-dbeta = 1/50
+dbeta = 1/8
 # Number of measurements to be made between beta = 0 and beta = final_beta
 resolution = int(final_beta/(1*dbeta))
 
@@ -134,7 +134,7 @@ N = 6
 J1 = 1
 J2 = 1
 # Finite difference beta step
-dbeta = 1/50
+dbeta = 1/16
 
 
 # ***Select the Hamiltonian here***
