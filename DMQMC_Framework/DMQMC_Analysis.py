@@ -14,12 +14,12 @@ import Sign_Problem_Analysis as sign_solver
 from scipy.optimize import curve_fit
 
 params = {
-   'axes.labelsize': 10,
-   'font.size': 10,
-   'legend.fontsize': 10,
-   'xtick.labelsize': 10,
-   'ytick.labelsize': 10,
-   'figure.figsize': [10, 5.25]
+   'axes.labelsize': 25,
+   'font.size': 25,
+   'legend.fontsize': 25,
+   'xtick.labelsize': 25,
+   'ytick.labelsize': 25,
+   'figure.figsize': [25, 25]
    } 
 plt.rcParams.update(params)
 
@@ -250,6 +250,7 @@ class Finite_Beta_Analyser:
         '''
         fitted_growth_rates = []
         fitted_growth_init = []
+        
         #Loop through the various loops
         for loop_index in range(self.__total_no_loops):
             this_log_recon_pop = self.__all_log_recon_pop[loop_index]
@@ -264,6 +265,7 @@ class Finite_Beta_Analyser:
             
             fitted_growth_rates.append(fit_parameters[0])
             fitted_growth_init.append(fit_parameters[1])
+        
         self.__growth_rate = np.mean(fitted_growth_rates)
         self.__growth_rate_error = np.std(fitted_growth_rates)
         #self.__growth_rate_error = max(fitted_growth_rates) - min(fitted_growth_rates)
@@ -317,7 +319,7 @@ class Finite_Beta_Analyser:
                                   abs((mean_proj*mean_trace))))
 
             self.__energy_estimators.append(mean_energy)
-            self.__energy_errors.append(std_error_proj/np.sqrt(len(measures[0])))
+            self.__energy_errors.append(std_error_energy/np.sqrt(len(measures[0])))
             
     def get_plot_title(self):
         '''
@@ -369,7 +371,7 @@ class Finite_Beta_Analyser:
         plt.errorbar(self.__beta, np.log(self.__no_psips_estimators), \
                      xerr = (self.__dbeta/2)*np.ones(len(self.__beta)), \
                      yerr = np.array(self.__no_psips_errors), fmt = 'x', label='DMQMC')
-        plt.xlabel(r'$\beta$ [J]')
+        plt.xlabel(r'$\beta J$')
         plt.ylabel('Log of total psip population')
         plt.grid()
         plt.savefig(fname = self.__result_directory + "Original_psip" + ".jpeg", format = 'jpeg')
@@ -391,7 +393,7 @@ class Finite_Beta_Analyser:
         #             yerr = np.array(self.__psips_growth_errors), fmt = 'x', label='DMQMC')
         plt.plot(self.__beta, self.linear(np.array(self.__beta), self.__growth_rate, \
                                           self.__growth_init), label='Fit')
-        plt.xlabel(r'$\beta$ [J]')
+        plt.xlabel(r'$\beta J$')
         plt.ylabel('Log of total recon. psip population growth')
         plt.legend()
         plt.grid()
@@ -405,7 +407,7 @@ class Finite_Beta_Analyser:
                      yerr = self.__energy_errors, fmt = 'x', label='DMQMC')
         
         plt.title(self.__plot_title)
-        plt.xlabel(r'$\beta$ [J]')
+        plt.xlabel(r'$\beta J$')
         plt.ylabel('Energy estimator [J]')
         ED_energy.show_result()
 
@@ -420,7 +422,7 @@ class Finite_Beta_Analyser:
                      xerr = (self.__dbeta/2)*np.ones(len(self.__beta)), \
                      yerr = self.__energy_errors, fmt = 'x', label='DMQMC')
         plt.title(self.__plot_title)
-        plt.xlabel(r'$\beta$ [J]')
+        plt.xlabel(r'$\beta J$')
         plt.ylabel('Energy residual [J]')
         plt.grid()
         plt.savefig(fname = self.__result_directory + "Energy_residual" + ".jpeg", format = 'jpeg')
@@ -431,7 +433,7 @@ class Finite_Beta_Analyser:
                      xerr = (self.__beta[1]-self.__beta[0])*np.ones(len(self.__beta)-1),
                      yerr = self.__gradient_err, fmt = 'x')
         plt.title(self.__plot_title)
-        plt.xlabel(r'$\beta$ [J]')
+        plt.xlabel(r'$\beta J$')
         plt.ylabel('Finite difference gradient of log of reconstructed growth')
         plt.grid()
         

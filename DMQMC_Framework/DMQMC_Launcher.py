@@ -62,9 +62,9 @@ N = 6
 J1 = 1
 J2 = 1
 # Finite difference beta step
-dbeta = 1/50
+dbeta = 1/32
 # Initial population on each of the diagonal entry
-init_pop = 7
+init_pop = 30
 
 
 # ***Select the Hamiltonian here***
@@ -95,6 +95,7 @@ N = 6
 J1 = 1
 J2 = 1
 # Initial population on each of the diagonal entry
+<<<<<<< Updated upstream
 init_pop = 9
 # Number of loops
 no_loops = 1
@@ -104,8 +105,19 @@ final_beta = 6
 # resolution = final_beta/(integer*dbeta)
 # Finite difference beta step
 dbeta = 1/8
+=======
+init_pop = 1
+# Number of loops
+no_loops = 1
+# Final target beta
+final_beta = 7
+# final_beta/resolution = integer * dbeta
+# resolution = final_beta/(integer*dbeta)
+# Finite difference beta step
+dbeta = 1/32
+>>>>>>> Stashed changes
 # Number of measurements to be made between beta = 0 and beta = final_beta
-resolution = int(final_beta/(1*dbeta))
+resolution = 28 #int(final_beta/(1*dbeta))
 
 # ***Select the Hamiltonian here***
 H = H_generator.Frustrated_Ladder(N, J1, J2)
@@ -134,7 +146,11 @@ N = 6
 J1 = 1
 J2 = 1
 # Finite difference beta step
+<<<<<<< Updated upstream
 dbeta = 1/16
+=======
+dbeta = 1/32
+>>>>>>> Stashed changes
 
 
 # ***Select the Hamiltonian here***
@@ -143,7 +159,7 @@ H = H_generator.Frustrated_Ladder(N, J1, J2)
 analyser = Analysis.Growth_Analyser(H, N, dbeta)
 
 analyser.get_all_fittings()
-analyser.rate_fitting()
+#analyser.rate_fitting()
 analyser.run_diagnostics()
 
 #%%

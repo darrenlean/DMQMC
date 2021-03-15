@@ -152,6 +152,13 @@ class SP_Analysis:
         
         self.__T_evalues = []
         self.__V_evalues = []
+        self.__operator = []
+        
+        # Unitary transformation matrices generating the diagonalisation of
+        # T, V respectively 
+        self.__U_T = []
+        self.__U_V = []
+        
         self.__combined = []
         
     def diagonalise(self):
@@ -182,23 +189,103 @@ class SP_Analysis:
         #the result required is the most positive eigenvalues of T
         #assuming that H is real symmetric -> T must be real symmetric
         # -> the eigenvalue must be purely real
-        self.__T_evalues = np.sort(Tevalues.real)
-    
+        
+        self.__T_evalues = Tevalues.real
+        self.__U_T = np.transpose(Tevectors)
+        
         #scipy exact diagonalisation for V = T plus + T minus
         Vevalues, Vevectors = la.eig(Tplus+Tminus, left = False, right = True)
         #the result required is the most positive eigenvalues of V
         #assuming that H is real symmetric -> V must be real symmetric
         # -> the eigenvalue must be purely real
-        self.__V_evalues = np.sort(Vevalues.real)
+        self.__V_evalues = Vevalues.real
+        self.__U_V = np.transpose(Tevectors)
         
-        for i in range(len(self.__V_evalues)):
-            self.__combined.append( self.__V_evalues[i] - self.__T_evalues[i])
-        self.__combined = np.array(self.__combined)
         self.__T_evalues = np.array(self.__T_evalues)
         self.__V_evalues = np.array(self.__V_evalues)
+        self.__operator = np.array(2*Tminus)
         
         return self.__T_evalues[-1], self.__V_evalues[-1]
     
+    def partition(self, beta, evalues):
+        summa = 0
+        for i in range(len(evalues)):
+            summa += np.exp(evalues[i]*beta)
+        
+        return summa
+    
+    def free_energy(self, beta, evalues):
+        return -1/beta*np.log(self.partition(beta, evalues))
+    
+    def expectation(self, beta, operator, evalues, U):
+        #Transform operator into proper eigenbasis:
+        
+        operator_eigen = np.matmul(np.transpose(U), np.matmul(operator, U))
+
+        trace = 0
+        for i in range(len(evalues)):
+            trace += operator_eigen[i][i]*np.exp(beta*evalues[i])
+            
+        return trace/self.partition(beta, evalues)
+    
+    def bogoliubov_analysis(self, final_beta, resolution):
+        
+        beta_range = np.linspace(0.5, final_beta, resolution)
+        f_error = []
+        f_error2 = []
+        free_energy_V = []
+        free_energy_T = []
+        V_rate = []
+        T_rate = []
+        partition_T = []
+        partition_V = []
+        print('Operator ', self.__operator)
+        for beta in beta_range:
+            f_error.append( 1/np.sqrt(self.partition(beta, self.__T_evalues))* \
+                      np.exp(0.5*beta*self.expectation(beta, self.__operator, self.__V_evalues, self.__U_V).real))
+            f_error2.append(np.sqrt(self.partition(beta, self.__V_evalues)/self.partition(beta, self.__T_evalues)))
+            partition_V.append(self.partition(beta, self.__V_evalues))
+            partition_T.append(self.partition(beta, self.__T_evalues))
+            free_energy_V.append(self.free_energy(beta, self.__V_evalues))
+            free_energy_T.append(self.free_energy(beta, self.__T_evalues))
+            V_rate.append(-beta*self.free_energy(beta, self.__V_evalues))
+            T_rate.append(-beta*self.free_energy(beta, self.__T_evalues))
+            print('Partition_T ', self.partition(beta, self.__T_evalues))
+            print('Partition_V ', self.partition(beta, self.__V_evalues))
+            print('Expectation in V ', self.expectation(beta, self.__operator, self.__V_evalues, self.__U_V))
+        f_error = np.array(f_error)
+        free_energy_V = np.array(free_energy_V)
+        free_energy_T = np.array(free_energy_T)
+        partition_T = np.array(partition_T)
+        partition_V = np.array(partition_V)
+        
+        
+        plt.figure(5)
+        #plt.plot(beta_range, f_error, label='Fractional error')
+        #plt.plot(beta_range, f_error2, label='Fractional error2')
+        #plt.plot(beta_range, (T_rate), label='Growth rate T')
+        #plt.plot(beta_range, (V_rate), label='Growth rate V')
+        plt.plot(beta_range, (free_energy_V), label='Free energy V')
+        plt.plot(beta_range, (free_energy_T), label='Free energy T')
+        plt.plot(beta_range, 0.5*free_energy_V, label='0.5 Free energy V')
+        #plt.plot(beta_range, np.sqrt(partition_V), label='Sqrt Partition V')
+        plt.grid()
+        plt.legend()
+        
+        plt.figure(6)
+        plt.plot(beta_range, (np.sqrt(partition_V)/(partition_T)), label='Frac error')
+        plt.grid()
+        plt.legend()
+        
+        #plt.plot(beta_range, 0.5*free_energy_V-free_energy_T, label='Severity')
+
+        #plt.plot(beta_range, n, label='n')
+        #plt.plot(beta_range, f_error, label='Fractional error')
+
+        
+       
+            
+            
     def plot_severity_anal(self):
         
         beta_range = sp.linspace(0, 10, 50)
@@ -207,15 +294,8 @@ class SP_Analysis:
         n = []
         p_trial = 0
         n_trial = 0
-        for beta in beta_range:
-            for i in range(2**self.__N):
-                p_trial += (np.exp(beta*self.__V_evalues[i]))
-                n_trial += (np.exp(beta*self.__T_evalues[i]))
-            p.append(p_trial)
-            n.append(n_trial)
-            s.append(sp.sqrt(p_trial)/n_trial)
-            p_trial = 0
-            n_trial = 0
+        
+        
         
         plt.figure(4)
         plt.plot(beta_range, s, label='Severity')
@@ -282,14 +362,14 @@ class SP_Analysis:
         plt.savefig(str(self.__N)+'Frustrated_DOS_Analysis.jpeg')
         plt.show()
 
-'''
-Analyser = SP_Analysis(8, 1, 1)
+
+Analyser = SP_Analysis(6, 1, 1)
 Analyser.diagonalise()
 Analyser.plot_evalues() 
-Analyser.plot_DOS()
-Analyser.find_signal_strength()
-Analyser.plot_severity_anal()
-'''
+#Analyser.plot_DOS()
+#Analyser.find_signal_strength()
+#Analyser.plot_severity_anal()
+Analyser.bogoliubov_analysis(7, 700)
     
     
     
