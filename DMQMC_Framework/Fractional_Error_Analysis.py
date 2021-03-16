@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 params = {
    'axes.labelsize': 10,
-   'font.size': 10,
+   'font.size': 12,
    'legend.fontsize': 10,
    'xtick.labelsize': 10,
    'ytick.labelsize': 10,

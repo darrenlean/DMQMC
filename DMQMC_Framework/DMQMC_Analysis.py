@@ -13,15 +13,17 @@ import ExactDiagonalisation as ED
 import Sign_Problem_Analysis as sign_solver
 from scipy.optimize import curve_fit
 
+
 params = {
-   'axes.labelsize': 25,
-   'font.size': 25,
-   'legend.fontsize': 25,
-   'xtick.labelsize': 25,
-   'ytick.labelsize': 25,
-   'figure.figsize': [25, 25]
+   'axes.labelsize': 10,
+   'font.size': 12,
+   'legend.fontsize': 10,
+   'xtick.labelsize': 10,
+   'ytick.labelsize': 10,
+   'figure.figsize': [10, 5.25]
    } 
 plt.rcParams.update(params)
+
 
 class Finite_Beta_Analyser:
     '''

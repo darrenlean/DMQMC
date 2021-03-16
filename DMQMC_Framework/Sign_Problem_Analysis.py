@@ -362,7 +362,7 @@ class SP_Analysis:
         plt.savefig(str(self.__N)+'Frustrated_DOS_Analysis.jpeg')
         plt.show()
 
-
+'''
 Analyser = SP_Analysis(6, 1, 1)
 Analyser.diagonalise()
 Analyser.plot_evalues() 
@@ -370,7 +370,7 @@ Analyser.plot_evalues()
 #Analyser.find_signal_strength()
 #Analyser.plot_severity_anal()
 Analyser.bogoliubov_analysis(7, 700)
-    
+''' 
     
     
      
