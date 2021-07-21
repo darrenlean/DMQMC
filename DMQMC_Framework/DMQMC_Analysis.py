@@ -579,7 +579,7 @@ class Growth_Analyser:
         plt.ylabel("G")
         #plt.xlabel("Initial population on each of diagonal entry")
         #plt.ylabel("Growth rate (fitted exponentials)")
-        plt.title(self.__plot_title)
+        #plt.title(self.__plot_title)
         plt.legend()
         plt.grid()
         plt.savefig(fname = self.__result_directory + "Growth_rate" + ".jpeg", format = 'jpeg')
