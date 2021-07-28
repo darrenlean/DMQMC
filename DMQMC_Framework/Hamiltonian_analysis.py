@@ -72,9 +72,9 @@ def analyse_Hamiltonian(matrix):
     
     
 # Parameters of the Heisenberg system
-N = 10
+N = 8
 J1 = 1
-J2 = 1
+J2 = 0.6
 
 startTime = time.time() 
 # Constructing the matrix

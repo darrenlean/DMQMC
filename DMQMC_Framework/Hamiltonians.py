@@ -67,12 +67,22 @@ class Hamiltonian():
         
         # The Hamiltonian is a dim(Hilbert space) * dim(Hilbert_space) matrix
         H = np.zeros([self.__Hilbert_size, self.__Hilbert_size])
-    
+        '''
         #Running for all entries
         for i in range(self.__Hilbert_size):
             for j in range(self.__Hilbert_size):
                 H[i][j] = self.Hamiltonian(i, j)
-                
+        '''
+        #Running for all entries and exploiting the symmetry
+        for i in range(self.__Hilbert_size):
+            for j in range(i, self.__Hilbert_size):
+                entry = self.Hamiltonian(i, j)
+                if i == j:
+                    H[i][i] = entry
+                else:
+                    H[i][j] = entry
+                    H[j][i] = entry
+             
         #Return the matrix
         return H
     
